@@ -1,9 +1,7 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the API client
-// Ensure API_KEY is set in your environment variables (e.g., .env or Vercel config)
-const apiKey = import.meta.env.VITE_API_KEY;
+const apiKey = process.env.API_KEY;
 
 // We create a safe wrapper to avoid crashing if the key is missing in dev
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
@@ -13,7 +11,10 @@ export const geminiService = {
    * Enhances a short notification text to make it more professional and engaging.
    */
   async enhanceNotification(text: string): Promise<string> {
-    if (!ai) throw new Error("API_KEY no configurada en el entorno.");
+    if (!ai) {
+        console.warn("Gemini API Key missing. Returning original text.");
+        return text;
+    }
 
     try {
       const response = await ai.models.generateContent({
@@ -35,7 +36,13 @@ export const geminiService = {
    * Analyzes nutritional data and provides personalized advice.
    */
   async getNutritionalAdvice(stats: any): Promise<{ title: string; text: string; score: number }> {
-    if (!ai) throw new Error("API_KEY no configurada.");
+    if (!ai) {
+        return {
+            title: "Configuración Pendiente",
+            text: "El sistema de IA no está configurado. Contacta al administrador.",
+            score: 0
+        };
+    }
 
     try {
       const prompt = `
