@@ -1,16 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
+import { geminiService } from '../../services/gemini';
 import { SystemNotification } from '../../types';
 import { Megaphone, Plus, Trash2, Calendar, AlertTriangle, Info, CheckCircle, Sparkles, Loader2 } from 'lucide-react';
-
-// Mock "AI" Templates to simulate text enhancement
-const AI_TEMPLATES = [
-  "Estimada comunidad educativa: Les informamos que {original}. Agradecemos su atención.",
-  "¡Atención estudiantes y personal! Queremos comunicarles que {original}. ¡Gracias!",
-  "Aviso importante: {original}. Tomar las previsiones necesarias.",
-  "Hola a todos: Nos complace anunciar que {original}. ¡Esperamos que lo disfruten!",
-  "Información relevante del día: {original}."
-];
 
 export const Notifications = () => {
   const [notifications, setNotifications] = useState<SystemNotification[]>([]);
@@ -42,8 +35,8 @@ export const Notifications = () => {
     }
   };
 
-  // Simulate AI Logic
-  const handleAIEnhance = () => {
+  // Real AI Logic using Gemini
+  const handleAIEnhance = async () => {
     if (!formData.message || formData.message.length < 3) {
       alert("Escribe un mensaje base primero.");
       return;
@@ -51,20 +44,19 @@ export const Notifications = () => {
 
     setIsEnhancing(true);
     
-    // Simulate API delay
-    setTimeout(() => {
-      const randomTemplate = AI_TEMPLATES[Math.floor(Math.random() * AI_TEMPLATES.length)];
-      // Simple logic: lowercase the first letter of original to fit in template
-      const cleanedOriginal = formData.message!.charAt(0).toLowerCase() + formData.message!.slice(1);
-      const enhanced = randomTemplate.replace('{original}', cleanedOriginal);
+    try {
+      const enhancedText = await geminiService.enhanceNotification(formData.message);
       
       setFormData(prev => ({
         ...prev,
-        message: enhanced,
+        message: enhancedText,
         originalMessage: prev.message // Keep backup just in case
       }));
+    } catch (error) {
+      alert("No se pudo conectar con la IA. Verifica tu API Key.");
+    } finally {
       setIsEnhancing(false);
-    }, 1500);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -203,7 +195,7 @@ export const Notifications = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Mensaje <span className="text-xs font-normal text-gray-500">(Escribe algo corto y usa la IA)</span>
+                  Mensaje
                 </label>
                 <textarea 
                   rows={3}
@@ -222,7 +214,7 @@ export const Notifications = () => {
                   className="mt-2 text-xs flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white rounded-full font-bold shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {isEnhancing ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                  Mejorar redacción con IA
+                  Mejorar redacción con Gemini
                 </button>
               </div>
 
