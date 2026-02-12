@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the API client
 // Ensure API_KEY is set in your environment variables (e.g., .env or Vercel config)
-const apiKey = process.env.API_KEY;
+const apiKey = import.meta.env.VITE_API_KEY;
 
 // We create a safe wrapper to avoid crashing if the key is missing in dev
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
