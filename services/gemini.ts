@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 const apiKey = process.env.API_KEY;
 
 // We create a safe wrapper to avoid crashing if the key is missing in dev
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY || '' });
 
 export const geminiService = {
   /**
