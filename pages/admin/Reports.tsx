@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db } from '../../services/db';
 import { Order, User, Recipe, DailyMenuConfig } from '../../types';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, Calendar, Users, AlertCircle, CheckCircle, TrendingUp, Search } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Download, Calendar, AlertCircle, TrendingUp } from 'lucide-react';
 import { generateAdvancedReport } from '../../utils/excel';
 
 export const Reports = () => {

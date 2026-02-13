@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import { DailyMenuConfig, Recipe, CategoryDef, OrderItem, Order } from '../../types';
-import { ArrowLeft, ArrowRight, Check, AlertTriangle, Utensils, Apple, Coffee, Soup, CircleDashed, Lock, Calendar, X, Edit2, CheckCircle2, Star, Sparkles, Leaf } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, Utensils, Apple, Coffee, Soup, CircleDashed, Lock, X, Edit2, CheckCircle2, Star, Sparkles, Leaf } from 'lucide-react';
 
 // --- Helpers ---
 const getCategoryIcon = (catId: string, size = 24) => {

@@ -1,11 +1,10 @@
-
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../services/db';
 import { geminiService } from '../../services/gemini';
 import { Order, Recipe, RecurringPreference, SystemNotification } from '../../types';
-import { CheckCircle, Circle, ChevronRight, History, Calendar, Lock, Clock, Bell, X, User as UserIcon, Mail, Shield, Star, Trash2, Megaphone, Info, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { CheckCircle, Circle, ChevronRight, History, Calendar, Clock, X, User as UserIcon, Mail, Shield, Star, Trash2, Info, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, UtensilsCrossed, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 
 export const StudentDashboard = () => {

@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../services/db';
 import { User, Role } from '../../types';
-import { Plus, Trash2, Search, Pencil, CheckCircle, AlertTriangle, Shield, GraduationCap, User as UserIcon, Briefcase, UserCheck, Upload, FileDown, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Search, Pencil, CheckCircle, AlertTriangle, Shield, GraduationCap, User as UserIcon, Briefcase, UserCheck, Upload, FileDown, Loader2 } from 'lucide-react';
 
 export const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
