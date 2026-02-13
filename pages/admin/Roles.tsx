@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { RoleDef } from '../../types';
 import { Plus, Trash2, Pencil, Shield, Lock, AlertCircle } from 'lucide-react';
@@ -42,7 +42,7 @@ export const Roles = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name) return;
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Salad, UserCircle, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,7 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  const handleStandardLogin = (e: React.FormEvent) => {
+  const handleStandardLogin = (e: FormEvent) => {
     e.preventDefault();
     setError('');
     

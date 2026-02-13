@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
@@ -59,7 +59,7 @@ interface ItemProps {
   disabled?: boolean;
 }
 
-const VisualCard: React.FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) => {
+const VisualCard: FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) => {
   const emoji = getRecipeEmoji(recipe);
   const hasImage = !!recipe.imageUrl;
 
@@ -122,7 +122,7 @@ const VisualCard: React.FC<ItemProps> = ({ recipe, isSelected, onSelect, disable
   );
 };
 
-const CompactItem: React.FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) => (
+const CompactItem: FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) => (
   <div 
     onClick={() => !disabled && onSelect(recipe.id)}
     className={`

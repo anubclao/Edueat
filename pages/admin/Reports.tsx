@@ -103,7 +103,8 @@ export const Reports = () => {
   }, [filteredOrders, recipes]);
 
   const handleDownload = () => {
-    generateAdvancedReport(filteredOrders, users, recipes, {start: startDate, end: endDate}, missingOrdersData);
+    // Removed 'users' from arguments
+    generateAdvancedReport(filteredOrders, recipes, {start: startDate, end: endDate}, missingOrdersData);
   };
 
   const COLORS = ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'];

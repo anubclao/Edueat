@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { Recipe, CategoryDef } from '../../types';
 import { Plus, Trash2, Search, Pencil, Image as ImageIcon, X, Link as LinkIcon } from 'lucide-react';
@@ -43,7 +43,7 @@ export const Recipes = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.category) return;
 

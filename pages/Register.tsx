@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../services/db';
 import { Salad, UserPlus, ArrowRight, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
@@ -24,7 +23,7 @@ export const Register = () => {
     return re.test(String(email).toLowerCase());
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 

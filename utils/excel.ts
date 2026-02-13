@@ -84,7 +84,7 @@ export const exportOrdersToExcel = (orders: Order[], recipes: Recipe[], fileName
 // --- NEW: Advanced Range Report ---
 export const generateAdvancedReport = (
   orders: Order[], 
-  users: User[], 
+  // users parameter removed as it was unused in logic
   recipes: Recipe[], 
   dateRange: {start: string, end: string},
   missingOrdersData: {date: string, user: User}[]

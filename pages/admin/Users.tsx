@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import { db } from '../../services/db';
 import { User, Role } from '../../types';
 import { Plus, Trash2, Search, Pencil, CheckCircle, AlertTriangle, Shield, GraduationCap, User as UserIcon, Briefcase, UserCheck, Upload, FileDown, Loader2 } from 'lucide-react';
@@ -56,7 +56,7 @@ export const Users = () => {
     return re.test(String(email).toLowerCase());
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
     // Validation: Email Format
@@ -139,7 +139,7 @@ export const Users = () => {
     window.XLSX.writeFile(wb, "Plantilla_Carga_Usuarios.xlsx");
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

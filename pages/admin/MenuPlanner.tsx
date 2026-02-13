@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import { db } from '../../services/db';
 import { Recipe, CategoryDef, DailyMenuConfig } from '../../types';
 import { Save, AlertCircle, History, Calendar, Edit, Trash2, Search, Image as ImageIcon, Lock } from 'lucide-react';
@@ -49,7 +48,7 @@ export const MenuPlanner = () => {
     });
   };
 
-  const toggleMandatory = (recipeId: string, e: React.MouseEvent) => {
+  const toggleMandatory = (recipeId: string, e: MouseEvent) => {
     e.stopPropagation(); 
     if (selectedDate < todayStr) return; // Prevent editing past
 

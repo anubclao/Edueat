@@ -35,6 +35,8 @@ export const sendSchoolEmail = async (to: string, subject: string, html: string)
       console.log('From:', `"Casino Escolar" <${SMTP_CONFIG.auth.user}>`);
       console.log('To:', to);
       console.log('Subject:', subject);
+      // Log html to avoid unused var error during build
+      console.log('Content Length:', html.length);
       console.groupEnd();
       resolve({ success: true });
     }, 1500); // Simulamos delay de red

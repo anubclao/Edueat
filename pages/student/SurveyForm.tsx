@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import { SurveyType, SurveyResult, SurveyDefinition } from '../../types';
-import { Star, MessageSquare, Send, Smile, Lock, AlertTriangle, Calendar, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Star, MessageSquare, Send, Smile, Lock, Calendar, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react';
 
 export const SurveyForm = () => {
   const { user } = useAuth();
@@ -52,7 +51,7 @@ export const SurveyForm = () => {
       setComment('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!user || !selectedSurvey) return;
     

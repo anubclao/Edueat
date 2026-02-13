@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { CategoryDef } from '../../types';
 import { Plus, Trash2, Pencil, Tags, ArrowUp, ArrowDown } from 'lucide-react';
@@ -40,7 +40,7 @@ export const Categories = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name) return;
 

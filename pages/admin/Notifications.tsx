@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { geminiService } from '../../services/gemini';
 import { SystemNotification } from '../../types';
@@ -59,7 +58,7 @@ export const Notifications = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.message || !formData.date) return;
 

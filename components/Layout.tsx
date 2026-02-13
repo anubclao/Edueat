@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, LayoutDashboard, CalendarDays, ChefHat, Salad, Moon, Sun, Users, Tags, Shield, Menu, X, CalendarRange, FileBarChart, Megaphone, MessageSquare, HeartHandshake } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-export const Layout = ({ children }: { children?: React.ReactNode }) => {
+export const Layout = ({ children }: { children?: ReactNode }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [darkMode, setDarkMode] = useState(false);

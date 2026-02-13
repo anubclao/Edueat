@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/Layout';
@@ -19,7 +19,7 @@ import { StudentDashboard } from './pages/student/StudentDashboard';
 import { OrderFlow } from './pages/student/OrderFlow';
 import { SurveyForm } from './pages/student/SurveyForm'; // Import Student Survey Form
 
-const PrivateRoute = ({ children, roles }: { children?: React.ReactNode, roles: string[] }) => {
+const PrivateRoute = ({ children, roles }: { children?: ReactNode, roles: string[] }) => {
   const { user } = useAuth();
   
   // 1. Check Authentication

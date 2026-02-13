@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../services/db';
 import { geminiService } from '../../services/gemini';
 import { Order, Recipe, RecurringPreference, SystemNotification } from '../../types';
-import { CheckCircle, Circle, ChevronRight, History, Calendar, Clock, X, User as UserIcon, Mail, Shield, Star, Trash2, Info, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { CheckCircle, Circle, ChevronRight, History, Calendar, Clock, X, User as UserIcon, Mail, Shield, Star, Trash2, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 
 export const StudentDashboard = () => {
@@ -249,7 +249,7 @@ export const StudentDashboard = () => {
   return (
     <div className="space-y-6">
       
-      {/* User Profile Header (Unchanged) */}
+      {/* User Profile Header */}
       {user && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-start md:items-center gap-4">
             <div className="bg-gradient-to-br from-primary to-emerald-600 p-0.5 rounded-full shadow-md">
@@ -280,7 +280,33 @@ export const StudentDashboard = () => {
         </div>
       )}
 
-      {/* NOTIFICATIONS (Unchanged) */}
+      {/* Reminder Banner */}
+      {showReminder && (
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start justify-between gap-4 animate-in slide-in-from-top-2 shadow-sm">
+            <div className="flex gap-3">
+                <div className="bg-amber-100 dark:bg-amber-800 p-2 rounded-full h-fit text-amber-700 dark:text-amber-200">
+                   <Clock size={20} />
+                </div>
+                <div>
+                    <h4 className="font-bold text-amber-900 dark:text-amber-100">¡No olvides tu almuerzo!</h4>
+                    <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">
+                        Aún no has realizado tu pedido para mañana (<strong>{tomorrowDate}</strong>).
+                        Las órdenes cierran a medianoche.
+                    </p>
+                    <div className="mt-2">
+                        <Link to={`/student/order/${tomorrowDate}`} className="text-xs bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded-lg font-bold transition-colors inline-flex items-center gap-1">
+                            Ordenar Ahora <ChevronRight size={12} />
+                        </Link>
+                    </div>
+                </div>
+            </div>
+            <button onClick={dismissReminder} className="text-amber-500 hover:text-amber-700 dark:hover:text-amber-300">
+                <X size={20} />
+            </button>
+        </div>
+      )}
+
+      {/* NOTIFICATIONS */}
       {activeNotifications.length > 0 && (
           <div className="grid gap-4 animate-in slide-in-from-top-4 duration-500">
              {activeNotifications.map(note => {
