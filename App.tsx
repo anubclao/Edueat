@@ -29,7 +29,7 @@ const PrivateRoute = ({ children, roles }: { children?: ReactNode, roles: string
 
   // 2. Middleware: Check Email Verification
   // We allow Admins to bypass because they are demo accounts or manually set
-  if (!user.emailVerified) {
+  if (!user.emailVerified && user.role !== 'admin') {
     return <Navigate to="/pending-verify" replace />;
   }
 
@@ -47,7 +47,7 @@ const AppRoutes = () => {
 
   const getHomeRedirect = () => {
     if (!user) return "/login";
-    if (!user.emailVerified) return "/pending-verify";
+    if (!user.emailVerified && user.role !== 'admin') return "/pending-verify";
     return user.role === 'admin' ? "/admin/dashboard" : "/student/dashboard";
   };
 

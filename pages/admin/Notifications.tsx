@@ -2,11 +2,14 @@ import { useState, useEffect, FormEvent } from 'react';
 import { db } from '../../services/db';
 import { geminiService } from '../../services/gemini';
 import { SystemNotification } from '../../types';
-import { Megaphone, Plus, Trash2, Calendar, AlertTriangle, Info, CheckCircle, Sparkles, Loader2 } from 'lucide-react';
+import { Megaphone, Plus, Trash2, Calendar, AlertTriangle, Info, CheckCircle, Sparkles, Loader2, MessageCircle, X } from 'lucide-react';
 
 export const Notifications = () => {
   const [notifications, setNotifications] = useState<SystemNotification[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [selectedNoteForWA, setSelectedNoteForWA] = useState<SystemNotification | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
   
   // Form State
   const [formData, setFormData] = useState<Partial<SystemNotification>>({
@@ -21,6 +24,7 @@ export const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
+    setUsers(db.getUsers());
   }, []);
 
   const fetchNotifications = () => {
@@ -56,6 +60,16 @@ export const Notifications = () => {
     } finally {
       setIsEnhancing(false);
     }
+  };
+
+  const handleOpenWhatsAppModal = (note: SystemNotification) => {
+    setSelectedNoteForWA(note);
+    setIsWhatsAppModalOpen(true);
+  };
+
+  const sendWhatsApp = (phone: string, message: string) => {
+    const encodedMsg = encodeURIComponent(message);
+    window.open(`https://wa.me/${phone}?text=${encodedMsg}`, '_blank');
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -144,12 +158,21 @@ export const Notifications = () => {
                 <p className="text-gray-800 dark:text-white font-medium">{note.message}</p>
               </div>
 
-              <button 
-                onClick={() => handleDelete(note.id)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors self-end md:self-center"
-              >
-                <Trash2 size={18} />
-              </button>
+              <div className="flex gap-2 self-end md:self-center">
+                <button 
+                  onClick={() => handleOpenWhatsAppModal(note)}
+                  className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
+                  title="Enviar por WhatsApp"
+                >
+                  <MessageCircle size={18} /> <span className="hidden lg:inline">WhatsApp</span>
+                </button>
+                <button 
+                  onClick={() => handleDelete(note.id)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))
         ) : (
@@ -233,6 +256,55 @@ export const Notifications = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* WHATSAPP BROADCAST MODAL */}
+      {isWhatsAppModalOpen && selectedNoteForWA && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold dark:text-white flex items-center gap-2">
+                <MessageCircle className="text-emerald-500" /> Difusión WhatsApp
+              </h3>
+              <button onClick={() => setIsWhatsAppModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-100 dark:border-emerald-800">
+              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase mb-1">Mensaje a enviar:</p>
+              <p className="text-sm text-gray-800 dark:text-gray-200 italic">"{selectedNoteForWA.message}"</p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              <p className="text-xs font-bold text-gray-400 uppercase">Destinatarios ({selectedNoteForWA.targetRole === 'all' ? 'Todos' : selectedNoteForWA.targetRole}):</p>
+              {users
+                .filter(u => selectedNoteForWA.targetRole === 'all' || u.role === selectedNoteForWA.targetRole)
+                .map(user => (
+                  <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <div>
+                      <p className="text-sm font-bold dark:text-white">{user.name}</p>
+                      <p className="text-[10px] text-gray-500">{user.phone || 'Sin teléfono'}</p>
+                    </div>
+                    {user.phone ? (
+                      <button 
+                        onClick={() => sendWhatsApp(user.phone, selectedNoteForWA.message)}
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-transform active:scale-95"
+                      >
+                        <MessageCircle size={14} /> Enviar
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-red-400 font-medium italic">No disponible</span>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            <div className="pt-4 border-t dark:border-gray-700 text-center">
+              <p className="text-[10px] text-gray-400">
+                Nota: Debido a restricciones del navegador, los mensajes deben enviarse uno a uno.
+              </p>
+            </div>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import { db } from '../../services/db';
 import { User, Role } from '../../types';
-import { Plus, Trash2, Search, Pencil, CheckCircle, AlertTriangle, Shield, GraduationCap, User as UserIcon, Briefcase, UserCheck, Upload, FileDown, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Search, Pencil, CheckCircle, AlertTriangle, GraduationCap, User as UserIcon, Briefcase, Upload, FileDown, Loader2 } from 'lucide-react';
 
 export const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,6 +15,7 @@ export const Users = () => {
     id: '',
     name: '',
     email: '',
+    phone: '',
     role: 'student',
     emailVerified: false,
     grade: 1,
@@ -56,12 +57,23 @@ export const Users = () => {
     return re.test(String(email).toLowerCase());
   };
 
+  const validatePhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length === 10;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
     // Validation: Email Format
     if (!validateEmail(formData.email)) {
         alert("El formato del correo electrónico no es válido.");
+        return;
+    }
+
+    // Validation: Phone Format
+    if (formData.phone && !validatePhone(formData.phone)) {
+        alert("El número de teléfono debe tener exactamente 10 dígitos.");
         return;
     }
 
@@ -84,6 +96,7 @@ export const Users = () => {
             alert(res.message || "Error al actualizar usuario.");
             return;
         }
+        alert("Usuario actualizado exitosamente.");
     } else {
         // CREATE NEW
         const res = db.registerUser(userToSave);
@@ -91,12 +104,7 @@ export const Users = () => {
             alert("Error: El usuario ya existe con este correo electrónico.");
             return;
         }
-        // Auto verify since Admin created it (db.registerUser sets it to false by default)
-        const createdUser = db.findUserByEmail(userToSave.email);
-        if (createdUser) {
-            createdUser.emailVerified = true;
-            db.updateUser(createdUser); // This update is safe as we just created it
-        }
+        alert("Usuario creado exitosamente.");
     }
     
     setIsModalOpen(false);
@@ -241,10 +249,10 @@ export const Users = () => {
 
   const getRoleIcon = (role: Role) => {
       switch(role) {
-          case 'admin': return <Shield size={16} className="text-blue-600" />;
+          case 'admin': return <UserIcon size={16} className="text-blue-600" />;
           case 'student': return <GraduationCap size={16} className="text-emerald-600" />;
           case 'teacher': return <Briefcase size={16} className="text-purple-600" />;
-          case 'staff': return <UserCheck size={16} className="text-orange-600" />;
+          case 'staff': return <UserIcon size={16} className="text-orange-600" />;
           default: return <UserIcon size={16} className="text-gray-600" />;
       }
   };
@@ -259,6 +267,16 @@ export const Users = () => {
         default: return role;
     }
 };
+
+  const getGradeDisplay = (grade: number | undefined) => {
+    if (grade === undefined) return '-';
+    switch(grade) {
+        case -2: return 'Prejardín';
+        case -1: return 'Jardín';
+        case 0: return 'Pre-escolar';
+        default: return `${grade}°`;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -342,6 +360,7 @@ export const Users = () => {
                         <div className="flex flex-col">
                             <span className="font-bold text-gray-900 dark:text-white">{user.name}</span>
                             <span className="text-gray-500 text-xs">{user.email}</span>
+                            {user.phone && <span className="text-primary text-[10px] font-medium">WA: {user.phone}</span>}
                         </div>
                     </td>
                     <td className="px-6 py-4">
@@ -353,7 +372,7 @@ export const Users = () => {
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
                         {user.role === 'student' ? (
                             <div className="flex flex-col gap-1">
-                                <span>Grado: <strong>{user.grade}° {user.section}</strong></span>
+                                <span>Grado: <strong>{getGradeDisplay(user.grade)} {user.section}</strong></span>
                                 {user.allergies && <span className="text-xs text-red-500 truncate max-w-[150px]" title={user.allergies}>⚠️ {user.allergies}</span>}
                             </div>
                         ) : (
@@ -363,18 +382,20 @@ export const Users = () => {
                         )}
                     </td>
                     <td className="px-6 py-4 text-center">
-                        <button 
-                            onClick={() => handleManualVerification(user)}
-                            className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md transition-colors border ${
-                                user.emailVerified 
-                                    ? 'bg-green-100 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300 hover:bg-red-100 hover:text-red-700 hover:border-red-200' 
-                                    : 'bg-yellow-100 border-yellow-200 text-yellow-700 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-300 hover:bg-green-100 hover:text-green-700 hover:border-green-200'
-                            }`}
-                            title="Haz clic para cambiar estado"
-                        >
-                            {user.emailVerified ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
-                            {user.emailVerified ? 'Permitido' : 'Pendiente'}
-                        </button>
+                        <div className="flex flex-col gap-2 items-center">
+                            <button 
+                                onClick={() => handleManualVerification(user)}
+                                className={`w-24 inline-flex items-center justify-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md transition-colors border ${
+                                    user.emailVerified 
+                                        ? 'bg-green-100 border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-300' 
+                                        : 'bg-yellow-100 border-yellow-200 text-yellow-700 dark:bg-yellow-900/30 dark:border-yellow-800 dark:text-yellow-300'
+                                }`}
+                                title="Estado de Verificación de Correo"
+                            >
+                                {user.emailVerified ? <CheckCircle size={12} /> : <AlertTriangle size={12} />} 
+                                {user.emailVerified ? 'Verificado' : 'Pendiente'}
+                            </button>
+                        </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
@@ -390,7 +411,7 @@ export const Users = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
                     <UserIcon size={48} className="mx-auto mb-4 opacity-20" />
                     No se encontraron usuarios.
                   </td>
@@ -415,7 +436,7 @@ export const Users = () => {
                 <input 
                   required
                   className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                  value={formData.name} 
+                  value={formData.name || ''} 
                   onChange={e => setFormData({...formData, name: e.target.value})} 
                 />
               </div>
@@ -426,8 +447,20 @@ export const Users = () => {
                   required
                   type="email"
                   className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                  value={formData.email} 
+                  value={formData.email || ''} 
                   onChange={e => setFormData({...formData, email: e.target.value})} 
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Teléfono / WhatsApp</label>
+                <input 
+                  required
+                  type="tel"
+                  placeholder="3001234567"
+                  className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                  value={formData.phone || ''} 
+                  onChange={e => setFormData({...formData, phone: e.target.value})} 
                 />
               </div>
 
@@ -436,7 +469,7 @@ export const Users = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rol</label>
                   <select 
                     className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    value={formData.role}
+                    value={formData.role || 'student'}
                     onChange={e => setFormData({...formData, role: e.target.value as Role})}
                   >
                     <option value="student">Estudiante</option>
@@ -447,15 +480,15 @@ export const Users = () => {
                   </select>
                 </div>
                 
-                <div className="flex items-end">
-                    <label className="flex items-center gap-2 cursor-pointer pb-2">
+                <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <input 
                             type="checkbox"
                             checked={formData.emailVerified}
                             onChange={e => setFormData({...formData, emailVerified: e.target.checked})}
                             className="w-4 h-4 text-primary rounded"
                         />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Acceso Permitido</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Correo Verificado</span>
                     </label>
                 </div>
               </div>
@@ -468,9 +501,14 @@ export const Users = () => {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Grado</label>
                             <select 
                                 className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                value={formData.grade}
+                                value={formData.grade || 1}
                                 onChange={e => setFormData({...formData, grade: Number(e.target.value)})}
                             >
+                                <optgroup label="Preescolar">
+                                    <option value={-2}>Prejardín</option>
+                                    <option value={-1}>Jardín</option>
+                                    <option value={0}>Pre-escolar</option>
+                                </optgroup>
                                 <optgroup label="Primaria">
                                     {[1,2,3,4,5].map(g => <option key={g} value={g}>{g}°</option>)}
                                 </optgroup>
@@ -483,7 +521,7 @@ export const Users = () => {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Sección</label>
                             <select 
                                 className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                value={formData.section}
+                                value={formData.section || 'A'}
                                 onChange={e => setFormData({...formData, section: e.target.value})}
                             >
                                 <option value="A">A</option>

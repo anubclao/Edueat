@@ -170,7 +170,7 @@ export const MenuPlanner = () => {
                     `}
                     >
                     {/* Thumbnail Image */}
-                    <div className="h-24 w-full bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden mb-2 relative">
+                    <div className="h-20 w-full bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden mb-2 relative">
                          {recipe.imageUrl ? (
                              <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-full object-cover" />
                          ) : (

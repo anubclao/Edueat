@@ -11,6 +11,7 @@ export const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     role: 'student',
     grade: '1',
     section: 'A',
@@ -23,6 +24,15 @@ export const Register = () => {
     return re.test(String(email).toLowerCase());
   };
 
+  const validatePhone = (phone: string) => {
+    // Remove any non-digit characters
+    const digits = phone.replace(/\D/g, '');
+    // Check if it has exactly 10 digits (standard for mobile in many regions like Colombia)
+    // If the user includes country code (e.g. 57), we might need to be careful.
+    // The prompt says "10 digits", so I'll enforce exactly 10 digits.
+    return digits.length === 10;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -32,17 +42,23 @@ export const Register = () => {
         return;
     }
 
+    if (!validatePhone(formData.phone)) {
+        setError('El número de teléfono debe tener exactamente 10 dígitos.');
+        return;
+    }
+
     setIsSubmitting(true);
     
     const newUser: User = {
       id: crypto.randomUUID(),
       name: formData.name,
       email: formData.email,
+      phone: formData.phone,
       role: formData.role as any,
       grade: formData.role === 'student' ? Number(formData.grade) : undefined,
       section: formData.role === 'student' ? formData.section : undefined,
       allergies: formData.allergies,
-      emailVerified: false 
+      emailVerified: false
     };
 
     // 1. Registrar en BD
@@ -132,6 +148,20 @@ export const Register = () => {
               }}
               disabled={isSubmitting}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Teléfono / WhatsApp <span className="text-red-500">*</span></label>
+            <input 
+              required
+              type="tel"
+              placeholder="Ej: 3001234567"
+              className="w-full mt-1 border rounded-lg p-3 focus:ring-2 focus:ring-primary/50 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              value={formData.phone}
+              onChange={e => setFormData({...formData, phone: e.target.value})}
+              disabled={isSubmitting}
+            />
+            <p className="text-[10px] text-gray-400 mt-1">Ingresa los 10 dígitos de tu celular</p>
           </div>
 
           <div>

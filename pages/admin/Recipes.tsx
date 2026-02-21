@@ -109,7 +109,7 @@ export const Recipes = () => {
           <div key={recipe.id} className="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-900 transition-all overflow-hidden flex flex-col">
             
             {/* Image Preview */}
-            <div className="h-40 w-full bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+            <div className="h-32 w-full bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
                 {recipe.imageUrl ? (
                     <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
@@ -210,7 +210,7 @@ export const Recipes = () => {
                 <input 
                   required
                   className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                  value={formData.name} 
+                  value={formData.name || ''} 
                   onChange={e => setFormData({...formData, name: e.target.value})} 
                 />
               </div>
@@ -220,7 +220,7 @@ export const Recipes = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoría</label>
                   <select 
                     className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    value={formData.category}
+                    value={formData.category || ''}
                     onChange={e => setFormData({...formData, category: e.target.value})}
                   >
                     <option value="" disabled>Seleccionar...</option>
@@ -234,7 +234,7 @@ export const Recipes = () => {
                   <input 
                     type="number"
                     className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    value={formData.calories}
+                    value={formData.calories ?? 0}
                     onChange={e => setFormData({...formData, calories: Number(e.target.value)})}
                   />
                 </div>
@@ -243,7 +243,7 @@ export const Recipes = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descripción</label>
                 <textarea 
                   className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  value={formData.description}
+                  value={formData.description || ''}
                   onChange={e => setFormData({...formData, description: e.target.value})}
                 />
               </div>

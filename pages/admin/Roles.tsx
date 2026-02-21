@@ -159,7 +159,7 @@ export const Roles = () => {
                 <textarea 
                   rows={2}
                   className="w-full mt-1 border rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                  value={formData.description} 
+                  value={formData.description || ''} 
                   onChange={e => setFormData({...formData, description: e.target.value})} 
                 />
               </div>

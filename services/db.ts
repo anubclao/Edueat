@@ -327,11 +327,11 @@ export const db = {
     const token = generateToken();
     const expiresAt = Date.now() + 24 * 60 * 60 * 1000;
 
-    const newUser = { 
-      ...user, 
-      verificationToken: token, 
-      tokenExpiresAt: expiresAt,
-      emailVerified: false 
+    const newUser: User = { 
+      ...user,
+      verificationToken: user.verificationToken || token, 
+      tokenExpiresAt: user.tokenExpiresAt || expiresAt,
+      emailVerified: user.emailVerified ?? false
     };
     
     users.push(newUser);
@@ -534,10 +534,41 @@ export const db = {
         id: 'super-admin-01',
         name: 'Super Admin',
         email: 'superadmin@edueats.com',
+        phone: '573000000000',
         role: 'admin',
         emailVerified: true
       };
       users.push(superAdmin);
+      setStorage(STORAGE_KEYS.USERS, users);
+    }
+
+    // Ensure Test Teacher Exists
+    if (!users.find(u => u.email === 'profesor@edueats.com')) {
+      const testTeacher: User = {
+        id: 'test-teacher-01',
+        name: 'Profesor de Prueba',
+        email: 'profesor@edueats.com',
+        phone: '573001112233',
+        role: 'teacher',
+        emailVerified: true
+      };
+      users.push(testTeacher);
+      setStorage(STORAGE_KEYS.USERS, users);
+    }
+
+    // Ensure Test Student Exists
+    if (!users.find(u => u.email === 'estudiante@edueats.com')) {
+      const testStudent: User = {
+        id: 'test-student-01',
+        name: 'Estudiante de Prueba',
+        email: 'estudiante@edueats.com',
+        phone: '573004445566',
+        role: 'student',
+        grade: 5,
+        section: 'A',
+        emailVerified: true
+      };
+      users.push(testStudent);
       setStorage(STORAGE_KEYS.USERS, users);
     }
   }

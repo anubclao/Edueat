@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from '../services/db';
 import { sendSchoolEmail } from '../services/mailer';
-import { CheckCircle, XCircle, Loader2, ArrowRight, Clock, RefreshCw } from 'lucide-react';
+import { Loader2, ArrowRight, Clock, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const VerifyEmail = () => {
@@ -35,10 +35,6 @@ export const VerifyEmail = () => {
     }, 1500);
   }, [token, refreshUser]);
 
-  const handleStart = () => {
-    navigate(user ? '/student/dashboard' : '/login');
-  };
-
   const handleResend = async () => {
     // Try to find user from context, or we might need to ask for email if not logged in.
     // For this flow, we assume the user is likely clicking the link on the same device or we can't easily resend without email.
@@ -70,8 +66,6 @@ export const VerifyEmail = () => {
     setIsResending(false);
   };
 
-  const isPrimary = user?.grade && user.grade <= 5;
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 transition-colors">
       <div className="w-full max-w-md">
@@ -87,34 +81,28 @@ export const VerifyEmail = () => {
         {status === 'success' && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-300">
             <div className="p-8 text-center">
-              <div className="text-6xl mb-4 animate-bounce">🥳</div>
-              <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                ¡Cuenta Activada!
+              <div className="text-6xl mb-4 animate-bounce">⏳</div>
+              <h1 className="text-2xl font-bold text-primary dark:text-emerald-400 mb-2">
+                ¡Registro Recibido!
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Tu registro en <strong>EduEats</strong> ha sido exitoso.
+                Hemos recibido tu solicitud de activación para <strong>EduEats</strong>.
               </p>
               
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl text-left mb-6 border border-blue-100 dark:border-blue-800">
-                <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
-                  <CheckCircle size={18} /> Todo listo
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-xl text-left mb-6 border border-emerald-100 dark:border-emerald-800">
+                <h3 className="font-bold text-emerald-800 dark:text-emerald-300 mb-3 flex items-center gap-2">
+                  <Clock size={18} /> Validación Pendiente
                 </h3>
-                <p className="text-sm text-blue-700 dark:text-blue-200">
-                  Ya puedes acceder al menú semanal y realizar tus pedidos.
+                <p className="text-sm text-emerald-700 dark:text-emerald-200">
+                  El administrador te dará el acceso una vez valide tus datos. Recibirás una notificación cuando tu cuenta esté activa.
                 </p>
               </div>
 
-              {isPrimary && (
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 p-3 rounded-lg text-sm mb-6 font-medium">
-                  🎒 ¡Pide ayuda a tus papás o profes si tienes dudas con la app!
-                </div>
-              )}
-
               <button 
-                onClick={handleStart}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2"
+                onClick={() => navigate('/login')}
+                className="w-full bg-primary hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-green-500/30 flex items-center justify-center gap-2"
               >
-                Ir al Dashboard <ArrowRight size={20} />
+                Volver al Inicio <ArrowRight size={20} />
               </button>
             </div>
           </div>
@@ -156,18 +144,18 @@ export const VerifyEmail = () => {
 
         {status === 'error' && (
           <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl text-center">
-            <div className="bg-red-100 dark:bg-red-900/20 p-4 rounded-full mb-4 inline-flex">
-              <XCircle className="text-red-600 dark:text-red-400" size={48} />
+            <div className="bg-emerald-100 dark:bg-emerald-900/20 p-4 rounded-full mb-4 inline-flex">
+              <Clock className="text-emerald-600 dark:text-emerald-400" size={48} />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Token Inválido</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Solicitud en Proceso</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Este enlace no existe o ya fue utilizado.
+              El administrador te dará el acceso una vez valide tus datos. Por favor, espera la confirmación.
             </p>
             <button 
               onClick={() => navigate('/login')}
-              className="bg-gray-800 hover:bg-black text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              className="bg-primary hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
             >
-              Volver al Login
+              Volver al Inicio
             </button>
           </div>
         )}

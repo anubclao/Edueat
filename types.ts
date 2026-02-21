@@ -1,10 +1,11 @@
 
-export type Role = 'admin' | 'student' | 'visitor' | string;
+export type Role = 'admin' | 'student' | 'visitor' | 'driver' | string;
 
 export type User = {
   id: string;
   name: string;
   email: string;
+  phone?: string; // WhatsApp number
   role: Role;
   grade?: number; // 1-11 for students
   section?: string; // A, B, Unique

@@ -95,7 +95,7 @@ const VisualCard: FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) =
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 text-white min-h-[220px] md:min-h-[300px]">
+      <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 text-white min-h-[180px] md:min-h-[240px]">
          <div className="mb-auto self-end">
             {isSelected ? (
                 <div className="bg-green-500 text-white rounded-full p-2 shadow-lg animate-in zoom-in spin-in-12">
@@ -137,7 +137,7 @@ const CompactItem: FC<ItemProps> = ({ recipe, isSelected, onSelect, disabled }) 
     `}
   >
     {/* Thumbnail */}
-    <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+    <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
         {recipe.imageUrl ? (
             <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-full object-cover" />
         ) : (

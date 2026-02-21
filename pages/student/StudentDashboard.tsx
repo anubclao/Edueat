@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../services/db';
 import { geminiService } from '../../services/gemini';
 import { Order, Recipe, RecurringPreference, SystemNotification } from '../../types';
-import { CheckCircle, Circle, ChevronRight, History, Calendar, Clock, X, User as UserIcon, Mail, Shield, Star, Trash2, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, Loader2 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { CheckCircle, Circle, ChevronRight, History, Calendar, Clock, X, User as UserIcon, Mail, Shield, Star, Trash2, AlertTriangle, Sparkles, PartyPopper, Activity, Brain, Loader2, FileDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 
 export const StudentDashboard = () => {
@@ -14,7 +15,7 @@ export const StudentDashboard = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   
   // Default tab logic: Check URL query params
-  const [activeTab, setActiveTab] = useState<'planner' | 'history' | 'favorites' | 'nutrition'>('planner');
+  const [activeTab, setActiveTab] = useState<'planner' | 'history' | 'favorites' | 'nutrition' | 'reports'>('planner');
   
   // Reminder State
   const [showReminder, setShowReminder] = useState(false);
@@ -31,12 +32,12 @@ export const StudentDashboard = () => {
   const [dismissedNoteIds, setDismissedNoteIds] = useState<string[]>([]);
 
   // Nutrition Date Range
-  const [nutriStartDate, setNutriStartDate] = useState(() => {
+  const [reportStartDate, setReportStartDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() - 7); // Last 7 days
+    d.setDate(d.getDate() - 30); // Default to last 30 days
     return d.toISOString().split('T')[0];
   });
-  const [nutriEndDate, setNutriEndDate] = useState(() => {
+  const [reportEndDate, setReportEndDate] = useState(() => {
     return new Date().toISOString().split('T')[0];
   });
 
@@ -102,7 +103,7 @@ export const StudentDashboard = () => {
   // Reset AI advice when date range changes
   useEffect(() => {
     setAiAdvice(null);
-  }, [nutriStartDate, nutriEndDate]);
+  }, [reportStartDate, reportEndDate]);
 
   const dismissReminder = () => {
     localStorage.setItem(`edueats_dismiss_reminder_${tomorrowDate}`, 'true');
@@ -164,8 +165,8 @@ export const StudentDashboard = () => {
     if (!orders.length || !recipes.length) return null;
 
     const rangeOrders = orders.filter(o => 
-        o.date >= nutriStartDate && 
-        o.date <= nutriEndDate && 
+        o.date >= reportStartDate && 
+        o.date <= reportEndDate && 
         o.status === 'confirmed'
     ).sort((a, b) => a.date.localeCompare(b.date));
 
@@ -199,7 +200,7 @@ export const StudentDashboard = () => {
         avgCalories: Math.round(avgCalories),
         daysCount: dailyStats.length
     };
-  }, [orders, recipes, nutriStartDate, nutriEndDate]);
+  }, [orders, recipes, reportStartDate, reportEndDate]);
 
   // --- HANDLER: Trigger Gemini Analysis ---
   const handleGenerateAiReport = async () => {
@@ -215,6 +216,36 @@ export const StudentDashboard = () => {
     } finally {
         setIsLoadingAi(false);
     }
+  };
+
+  const handleDownloadReport = () => {
+    if (!user) return;
+
+    const filteredOrders = orders.filter(order => {
+      const orderDate = new Date(order.date + 'T00:00:00');
+      const start = new Date(reportStartDate + 'T00:00:00');
+      const end = new Date(reportEndDate + 'T00:00:00');
+      return orderDate >= start && orderDate <= end;
+    });
+
+    if (filteredOrders.length === 0) {
+      alert('No se encontraron pedidos en el rango de fechas seleccionado.');
+      return;
+    }
+
+    const reportData = filteredOrders.map(order => {
+      const items = order.items.map(item => getRecipeName(item.recipeId)).join(', ');
+      return {
+        'Fecha del Pedido': order.date,
+        'Estado': order.status === 'confirmed' ? 'Confirmado' : 'Pendiente',
+        'Items Pedidos': items
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(reportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Reporte de Pedidos');
+    XLSX.writeFile(wb, `Reporte_Pedidos_${user.name}_${reportStartDate}_a_${reportEndDate}.xlsx`);
   };
 
   const getNotificationStyles = (type: string) => {
@@ -345,6 +376,108 @@ export const StudentDashboard = () => {
           </div>
       )}
 
+      {/* AI NUTRITION SUMMARY SECTION (NEW) */}
+      {statsData && statsData.daysCount > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* AI Advice Snapshot */}
+          <div className="lg:col-span-2 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
+            <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
+              <Brain size={200} />
+            </div>
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                    <Sparkles size={24} className="text-yellow-300" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Resumen Nutricional IA</h3>
+                </div>
+                {aiAdvice && (
+                  <div className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-md text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    <Activity size={12} /> Score: {aiAdvice.score}/100
+                  </div>
+                )}
+              </div>
+
+              {aiAdvice ? (
+                <div className="flex-1 flex flex-col justify-center">
+                  <h4 className="text-lg font-bold text-white/90 mb-2">{aiAdvice.title}</h4>
+                  <p className="text-white/80 text-sm md:text-base leading-relaxed italic">
+                    "{aiAdvice.text}"
+                  </p>
+                </div>
+              ) : (
+                <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4 py-4">
+                  <p className="text-white/70 text-sm max-w-md">
+                    Analiza tus últimos {statsData.daysCount} días de consumo para recibir consejos personalizados de nuestro experto virtual.
+                  </p>
+                  <button 
+                    onClick={handleGenerateAiReport}
+                    disabled={isLoadingAi}
+                    className="bg-white text-indigo-700 hover:bg-indigo-50 px-6 py-2.5 rounded-xl font-bold shadow-xl transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isLoadingAi ? <Loader2 className="animate-spin" size={18} /> : <Brain size={18} />}
+                    {isLoadingAi ? 'Analizando...' : 'Generar Informe IA'}
+                  </button>
+                </div>
+              )}
+              
+              <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] uppercase tracking-widest font-bold opacity-60">
+                <span>Basado en {statsData.daysCount} pedidos recientes</span>
+                <button onClick={() => setActiveTab('nutrition')} className="hover:text-white transition-colors flex items-center gap-1">
+                  Ver detalles <ChevronRight size={10} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Caloric Chart Snapshot */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h4 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <Activity className="text-primary" size={18} /> Calorías
+              </h4>
+              <div className="text-right">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Promedio</p>
+                <p className="text-lg font-black text-gray-800 dark:text-white leading-none">{statsData.avgCalories} <span className="text-[10px] font-normal text-gray-500">kcal</span></p>
+              </div>
+            </div>
+            <div className="flex-1 min-h-[140px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statsData.chartData}>
+                  <Bar dataKey="calories" radius={[4, 4, 0, 0]}>
+                    {statsData.chartData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.calories > 1000 ? '#F59E0B' : entry.calories < 400 ? '#EF4444' : '#10B981'} 
+                        fillOpacity={0.8}
+                      />
+                    ))}
+                  </Bar>
+                  <Tooltip 
+                    cursor={{ fill: 'transparent' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white dark:bg-gray-700 p-2 rounded-lg shadow-xl border border-gray-100 dark:border-gray-600 text-[10px] font-bold">
+                            <p className="text-gray-500 dark:text-gray-400">{payload[0].payload.day}</p>
+                            <p className="text-primary">{payload[0].value} kcal</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[10px] text-center text-gray-400 mt-4 font-medium">
+              Tendencia de los últimos {statsData.daysCount} días
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Tabs Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b dark:border-gray-700 pb-2">
         <div>
@@ -362,6 +495,7 @@ export const StudentDashboard = () => {
           <button onClick={() => setActiveTab('history')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'history' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}><History size={16} /> Historial</button>
           <button onClick={() => setActiveTab('nutrition')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'nutrition' ? 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}><Sparkles size={16} /> Nutrición IA</button>
           <button onClick={() => setActiveTab('favorites')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'favorites' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}><Star size={16} /> Favoritos</button>
+          <button onClick={() => setActiveTab('reports')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'reports' ? 'bg-white dark:bg-gray-700 text-primary shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}><FileDown size={16} /> Reportes</button>
         </div>
       </div>
 
@@ -380,7 +514,9 @@ export const StudentDashboard = () => {
            </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableDates.map((date) => {
+            {availableDates
+              .filter(date => getOrderStatus(date) !== 'confirmed')
+              .map((date) => {
               const status = getOrderStatus(date);
               const dateObj = new Date(date + 'T00:00:00'); 
               const dayNameRaw = dateObj.toLocaleDateString('es-ES', { weekday: 'long' });
@@ -481,15 +617,15 @@ export const StudentDashboard = () => {
                 </div>
                 <input 
                     type="date" 
-                    value={nutriStartDate} 
-                    onChange={e => setNutriStartDate(e.target.value)}
+                    value={reportStartDate} 
+                    onChange={e => setReportStartDate(e.target.value)}
                     className="border rounded-lg p-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
                 <span className="text-gray-400">-</span>
                 <input 
                     type="date" 
-                    value={nutriEndDate} 
-                    onChange={e => setNutriEndDate(e.target.value)}
+                    value={reportEndDate} 
+                    onChange={e => setReportEndDate(e.target.value)}
                     className="border rounded-lg p-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
             </div>
@@ -602,7 +738,6 @@ export const StudentDashboard = () => {
         </div>
       )}
 
-      {/* TAB CONTENT: FAVORITES (Unchanged) */}
       {activeTab === 'favorites' && (
         <div className="space-y-6">
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-xl p-4 text-sm text-yellow-800 dark:text-yellow-200 flex gap-3">
@@ -628,6 +763,41 @@ export const StudentDashboard = () => {
                         <p>No tienes menús favoritos guardados.</p>
                     </div>
                 )}
+            </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: REPORTS (NEW) */}
+      {activeTab === 'reports' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-bold text-sm">
+                    <Calendar size={18} className="text-primary" /> Generar reporte de pedidos:
+                </div>
+                <input 
+                    type="date" 
+                    value={reportStartDate} 
+                    onChange={e => setReportStartDate(e.target.value)}
+                    className="border rounded-lg p-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+                <span className="text-gray-400">-</span>
+                <input 
+                    type="date" 
+                    value={reportEndDate} 
+                    onChange={e => setReportEndDate(e.target.value)}
+                    className="border rounded-lg p-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+                <button 
+                    onClick={handleDownloadReport}
+                    className="bg-primary hover:bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm text-sm font-bold"
+                >
+                    <FileDown size={18} /> Descargar Excel
+                </button>
+            </div>
+
+            {/* Report Preview/Summary (Optional) */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm text-center text-gray-500 dark:text-gray-400">
+                <p>Selecciona un rango de fechas y haz clic en 'Descargar Excel' para generar tu reporte.</p>
             </div>
         </div>
       )}

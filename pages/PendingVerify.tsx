@@ -41,7 +41,7 @@ export const PendingVerify = () => {
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4 text-sm text-blue-800 dark:text-blue-200">
-          <p>Para garantizar la seguridad de los pedidos, requerimos este último paso de confirmación.</p>
+          <p>Para garantizar la seguridad, el administrador debe validar tus datos antes de darte acceso total.</p>
         </div>
 
         <div className="space-y-4 pt-2">
